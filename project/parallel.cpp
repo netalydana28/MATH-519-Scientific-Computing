@@ -1,12 +1,9 @@
 #include <stdio.h>
 #include <mpi.h>
 #include <stdlib.h>
-#include <vector>
-#include <cmath>
-#include <string>
-#include <iostream>
-#include <fstream>
-#include <algorithm>
+#include <bits/stdc++.h>  
+#include <chrono>
+using namespace std::chrono;
 
 using namespace std;
 
@@ -42,9 +39,7 @@ void gather_strings(int rank, int size, string& local_str, string& global_str) {
         global_buffer.resize(total_len);
     }
 
-    MPI_Gatherv(local_buffer.data(), local_len, MPI_CHAR,
-                global_buffer.data(), lengths.data(), displs.data(), MPI_CHAR,
-                0, MPI_COMM_WORLD);
+    MPI_Gatherv(local_buffer.data(), local_len, MPI_CHAR, global_buffer.data(), lengths.data(), displs.data(), MPI_CHAR, 0, MPI_COMM_WORLD);
 
     if (rank == 0) {
         global_str.assign(global_buffer.begin(), global_buffer.end());
@@ -54,15 +49,16 @@ void gather_strings(int rank, int size, string& local_str, string& global_str) {
 int main(int argc, char* argv[]) {
     double dx = 1e-2, dy = 1e-2, eps = 1e-6, local_diff, global_diff;
     int N = 2 / dx, M = 1 / dy, ProcRank, ProcNum;
-    double start, end;
+    // double start, end;
 
     MPI_Init(&argc, &argv);
     MPI_Comm_size(MPI_COMM_WORLD, &ProcNum);
     MPI_Comm_rank(MPI_COMM_WORLD, &ProcRank);
 
-    if (ProcRank == 0) {
-        start = MPI_Wtime();
-    }
+    // if (ProcRank == 0) {
+        // start = MPI_Wtime();
+        auto start = high_resolution_clock::now();
+    // }
 
     int dims[2] = {2, 2}, periods[2] = {0, 0};
     MPI_Comm cart_comm;
@@ -121,51 +117,15 @@ int main(int argc, char* argv[]) {
     MPI_Cart_shift(cart_comm, 1, 1, &left, &right);
 
     vector<double> left_col(local_N + 2), right_col(local_N + 2), left_ghost(local_N + 2), right_ghost(local_N + 2);
-    vector<double> upper_col(local_M + 2), bottom_col(local_M + 2), upper_ghost(local_M + 2), bottom_ghost(local_M + 2);
-
     do {
-        // for (j = 0; j < local_M + 2; j++) {
-        //     upper_col[j] = u[1][j];
-        //     bottom_col[j] = u[local_N][j];
-        // }
-        // if (down != MPI_PROC_NULL) {
-        //     // MPI_Send(u[local_N].data(), local_M + 2, MPI_DOUBLE, down, 0, cart_comm);
-        //     // MPI_Recv(u[local_N + 1].data(), local_M + 2, MPI_DOUBLE, down, 0, cart_comm, MPI_STATUS_IGNORE);
-        //     MPI_Send(bottom_col.data(), local_M + 2, MPI_DOUBLE, down, 0, cart_comm);
-        //     MPI_Recv(bottom_ghost.data(), local_M + 2, MPI_DOUBLE, down, 0, cart_comm, MPI_STATUS_IGNORE);
-        // }
-        // if (up != MPI_PROC_NULL) {
-        //     // MPI_Recv(u[0].data(), local_M + 2, MPI_DOUBLE, up, 0, cart_comm, MPI_STATUS_IGNORE);
-        //     // MPI_Send(u[1].data(), local_M + 2, MPI_DOUBLE, up, 0, cart_comm);
-        //     MPI_Recv(upper_ghost.data(), local_M + 2, MPI_DOUBLE, up, 0, cart_comm, MPI_STATUS_IGNORE);
-        //     MPI_Send(upper_col.data(), local_M + 2, MPI_DOUBLE, up, 0, cart_comm);
-        // }
-
-        // for (j = 0; j < local_M + 2; j++) {
-        //     u[0][j] = upper_ghost[j];
-        //     u[local_N+1][j] = bottom_ghost[j];
-        // }
-
-        for (j = 0; j < local_M + 2; j++) {
-    upper_col[j] = u[1][j];
-    bottom_col[j] = u[local_N][j];
-}
-
-if (down != MPI_PROC_NULL) {
-    MPI_Send(bottom_col.data(), local_M + 2, MPI_DOUBLE, down, 0, cart_comm);
-    MPI_Recv(bottom_ghost.data(), local_M + 2, MPI_DOUBLE, down, 0, cart_comm, MPI_STATUS_IGNORE);
-}
-if (up != MPI_PROC_NULL) {
-    MPI_Recv(upper_ghost.data(), local_M + 2, MPI_DOUBLE, up, 0, cart_comm, MPI_STATUS_IGNORE);
-    MPI_Send(upper_col.data(), local_M + 2, MPI_DOUBLE, up, 0, cart_comm);
-}
-
-// Apply received data
-for (j = 0; j < local_M + 2; j++) {
-    if (up != MPI_PROC_NULL) u[0][j] = upper_ghost[j];
-    if (down != MPI_PROC_NULL) u[local_N + 1][j] = bottom_ghost[j];
-}
-
+        if (down != MPI_PROC_NULL) {
+            MPI_Send(u[local_N].data(), local_M + 2, MPI_DOUBLE, down, 0, cart_comm);
+            MPI_Recv(u[local_N + 1].data(), local_M + 2, MPI_DOUBLE, down, 0, cart_comm, MPI_STATUS_IGNORE);
+        }
+        if (up != MPI_PROC_NULL) {
+            MPI_Recv(u[0].data(), local_M + 2, MPI_DOUBLE, up, 0, cart_comm, MPI_STATUS_IGNORE);
+            MPI_Send(u[1].data(), local_M + 2, MPI_DOUBLE, up, 0, cart_comm);
+        }
 
         for (i = 0; i < local_N + 2; i++) {
             left_col[i] = u[i][1];
@@ -175,16 +135,21 @@ for (j = 0; j < local_M + 2; j++) {
         if (right != MPI_PROC_NULL) {
             MPI_Send(right_col.data(), local_N + 2, MPI_DOUBLE, right, 0, cart_comm);
             MPI_Recv(right_ghost.data(), local_N + 2, MPI_DOUBLE, right, 0, cart_comm, MPI_STATUS_IGNORE);
+            for (i = 0; i < local_N + 2; i++) {
+                u[i][local_M+1] = right_ghost[i];
+            }
         }
         if (left != MPI_PROC_NULL) {
             MPI_Recv(left_ghost.data(), local_N + 2, MPI_DOUBLE, left, 0, cart_comm, MPI_STATUS_IGNORE);
             MPI_Send(left_col.data(), local_N + 2, MPI_DOUBLE, left, 0, cart_comm);
+            for (i = 0; i < local_N + 2; i++) {
+                u[i][0] = left_ghost[i];
+            }
         }
-
-        for (i = 0; i < local_N + 2; i++) {
-            u[i][0] = left_ghost[i];
-            u[i][local_M+1] = right_ghost[i];
-        }
+        // for (i = 0; i < local_N + 2; i++) {
+        //     u[i][0] = left_ghost[i];
+        //     u[i][local_M+1] = right_ghost[i];
+        // }
 
         local_diff = 0.0;
         for (i = 1; i <= local_N; i++) {
@@ -199,8 +164,14 @@ for (j = 0; j < local_M + 2; j++) {
             }
         }
         MPI_Allreduce(&local_diff, &global_diff, 1, MPI_DOUBLE, MPI_MAX, cart_comm);
-        cout<<global_diff<<"\n";
+        // cout<<global_diff<<"\n";
     } while (global_diff > eps);
+
+    // if (ProcRank == 0) {
+    //     end = MPI_Wtime();
+    //     // printf("Time taken by function: %.5f microseconds\n", (end - start)*1e+6);
+    //     cout<<"Time taken by function: "<<(end - start)*1000000<<" microseconds\n";
+    // }
 
     string local_result = "";
     double x, y;
@@ -214,13 +185,18 @@ for (j = 0; j < local_M + 2; j++) {
 
     string global_result;
     gather_strings(ProcRank, ProcNum, local_result, global_result);
-
+auto stop = high_resolution_clock::now();
+        auto duration = duration_cast<microseconds>(stop - start);
     if (ProcRank == 0) {
-        ofstream File("numerical.txt");
+        // end = MPI_Wtime();
+        // printf("Time taken by function: %.5f microseconds\n", (end - start)*1e+6);
+        // cout<<"Time taken by function: "<<(end - start)*1e+6<<" microseconds\n";
+        
+        cout << "Execution time: " << duration.count() << " microseconds" << endl;
+        ofstream File("parallel.txt");
         File << global_result;
         File.close();
-        end = MPI_Wtime();
-        cout << "Execution time: " << (end - start) << " seconds\n";
+        
     }
 
     MPI_Finalize();

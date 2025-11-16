@@ -65,7 +65,7 @@ int main(){
 
             }
         }
-        cout<<max_diff<<"\n";
+        // cout<<max_diff<<"\n";
     }while(max_diff>eps);
     auto stop = high_resolution_clock::now();
     auto duration = duration_cast<microseconds>(stop - start);
@@ -75,7 +75,7 @@ int main(){
 
     ofstream File("sequential.txt");
     // ofstream File1("analytical.txt");
-    double x, y, u_num, u_an, max_error=0.0;    
+    double x, y, u_num, u_an;    
     for (i = 0; i < N; i++) {
         for (j = 0; j < M; j++) {
             x = j * dx;
@@ -88,7 +88,6 @@ int main(){
             // File1<<x<<"\t"<<y<<"\t"<<u_an<< "\n";
         }
     }
-    cout<<"Max_error "<<max_error<<'\n';
     File.close();
     // File1.close();
 
