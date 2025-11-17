@@ -48,7 +48,7 @@ void gather_strings(int rank, int size, string& local_str, string& global_str) {
 
 int main(int argc, char* argv[]) {
     double dx = 1e-2, dy = 1e-2, eps = 1e-6, local_diff, global_diff;
-    int N = 2 / dx, M = 1 / dy, ProcRank, ProcNum;
+    int N = 2 / dx + 1, M = 1 / dy + 1, ProcRank, ProcNum;
     // double start, end;
 
     MPI_Init(&argc, &argv);
@@ -64,7 +64,7 @@ int main(int argc, char* argv[]) {
     MPI_Comm cart_comm;
     MPI_Cart_create(MPI_COMM_WORLD, 2, dims, periods, 0, &cart_comm);
 
-    if (N % dims[0] != 0 || M % dims[1] != 0) {
+    if ((N-1) % dims[0] != 0 || (M-1) % dims[1] != 0) {
         if (ProcRank == 0) {
             cerr << "Error: Grid size must be divisible by dims[0] and dims[1]\n";
         }

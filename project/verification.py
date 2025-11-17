@@ -27,7 +27,7 @@ def find_solution_error(sequential_file, parallel_file):
     
     max_error_point = df_merged.loc[df_merged['error'].idxmax()]
 
-    print("--- Error Analysis (Sequential vs Parallel) ---")
+    print("--- Error Analysis (Sequential vs Analytical) ---")
     print(f"Total points compared: {len(df_merged)}")
     print("-" * 40)
     print(f"Maximum Absolute Error: {max_error:.8f}")
@@ -36,6 +36,6 @@ def find_solution_error(sequential_file, parallel_file):
     print("Coordinates of Maximum Error Point:")
     print(f"x: {max_error_point['x']:.4f}, y: {max_error_point['y']:.4f}")
     print(f"u_sequential: {max_error_point['u_seq']:.8f}")
-    print(f"u_parallel:   {max_error_point['u_par']:.8f}")
+    print(f"u_analytical:   {max_error_point['u_par']:.8f}")
 
-find_solution_error('sequential.txt', 'parallel.txt')
+find_solution_error('sequential.txt', 'analytical.txt')

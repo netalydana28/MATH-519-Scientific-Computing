@@ -20,7 +20,7 @@ double right(double y){return y*(2.0*y+1.0);}
 int main(){
     auto start = high_resolution_clock::now();
     double dx=1e-2, dy=1e-2, eps = 1e-6, max_diff;
-    int N=2/dx, M=1/dy; 
+    int N=2/dx +1, M=1/dy +1; 
     int N_time = 1e+2;
 
 
@@ -36,17 +36,17 @@ int main(){
 
 
     for(i=0; i<N; i++){
-        u[i][0] = upper();
         u[i][M-1] = bottom(i*dx);
-        u_new[i][0] = upper();
+        u[i][0] = upper();
         u_new[i][M-1] = bottom(i*dx);
+        u_new[i][0] = upper();
     }
 
     for(j=0; j<M; j++){
-        u[0][j] = left();
         u[N-1][j] = right(j*dy);
-        u_new[0][j] = left();
+        u[0][j] = left();
         u_new[N-1][j] = right(j*dy);
+        u_new[0][j] = left();
     }
     do{
         max_diff = 0.0;
@@ -78,8 +78,8 @@ int main(){
     double x, y, u_num, u_an;    
     for (i = 0; i < N; i++) {
         for (j = 0; j < M; j++) {
-            x = j * dx;
-            y = i * dy;
+            x = i * dx;
+            y = j * dy;
             u_num = u[i][j];
             // u_an = analytical(j*dx, i*dy, alpha, N_time*dt);
             // max_error = max(max_error, fabs(u_num - u_an));
