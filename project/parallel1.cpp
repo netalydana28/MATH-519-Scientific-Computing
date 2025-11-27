@@ -6,7 +6,7 @@
 using namespace std::chrono;
 
 using namespace std;
-
+double sequential_time = 2959042;
 double upper(){ return 0; }
 double bottom(double x){ return 0.5*x*(x+1.0); }
 double left(){ return 0; }
@@ -208,7 +208,11 @@ int main(int argc, char* argv[]) {
     if (ProcRank == 0) {
         cout << "Execution time: " << duration.count() << " microseconds" << endl;
         // cout << "Iterations: " << iter << endl;
-        
+        if (duration.count() >= sequential_time ){
+            cout << "=================================="<<"\nTest 2 is failed\n";
+        }else{
+            cout << "=================================="<<"\nTest 2 passed successfully!\n";
+        }
         ofstream File("parallel.txt");
         for (size_t i = 0; i < global_data.size(); i += 3) {
             File << global_data[i] << "\t" << global_data[i+1] << "\t" << global_data[i+2] << "\n";

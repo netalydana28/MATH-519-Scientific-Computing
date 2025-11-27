@@ -8,7 +8,7 @@ using namespace std::chrono;
 using namespace std;
 
 int i, j, k;
-double sequential_time = 
+double sequential_time = 2806909;
 double upper(){ return 0; }
 
 double bottom(double x){ return 0.5*x*(x+1.0);}
@@ -193,7 +193,11 @@ auto stop = high_resolution_clock::now();
         // cout<<"Time taken by function: "<<(end - start)*1e+6<<" microseconds\n";
         
         cout << "Execution time: " << duration.count() << " microseconds" << endl;
-        if (duration.count() >= )
+        if (duration.count() >= sequential_time ){
+            cout << "=================================="<<"\nTest 1 is failed\n";
+        }else{
+            cout << "=================================="<<"\nTest 1 passed successfully!\n";
+        }
         ofstream File("parallel.txt");
         File << global_result;
         File.close();
