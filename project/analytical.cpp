@@ -137,15 +137,15 @@ int main() {
     }
     
     file.close();
-    cout << "Analytical solution saved to 'analytical_solution_fixed.txt'" << endl;
+    cout << "Analytical solution saved to 'analytical.txt'" << endl;
     
     // Test convergence with number of terms
-    cout << "\nTesting convergence at (1.0, 0.5):\n";
-    vector<int> terms = {10, 20, 50, 100, 200};
-    for (int n : terms) {
-        double u_val = analytical_solution(1.0, 0.5, n);
-        cout << "N_terms = " << n << ": u = " << u_val << endl;
-    }
+    // cout << "\nTesting convergence at (1.0, 0.5):\n";
+    // vector<int> terms = {10, 20, 50, 100, 200};
+    // for (int n : terms) {
+    //     double u_val = analytical_solution(1.0, 0.5, n);
+    //     cout << "N_terms = " << n << ": u = " << u_val << endl;
+    // }
     
     return 0;
 }
